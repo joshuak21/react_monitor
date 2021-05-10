@@ -1,0 +1,25 @@
+div {
+  color: rgb(238, 218, 218);
+}
+
+.content {
+  display: inline-block;
+  /* flex-direction: column; */
+}
+
+.dataContainer {
+  border-style: solid;
+  border-color: black;
+  border-width: 5px;
+}
+
+.data {
+  align-items: center;
+  padding-top: 6px;
+  padding-bottom: 6px;
+}
+
+.text {
+  padding-left: 16px;
+  padding-right: 16px;
+}

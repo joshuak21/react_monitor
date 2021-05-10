@@ -1,0 +1,14 @@
+.container {
+  margin-left: 16px;
+  margin-right: 16px;
+  margin-top: 16px;
+  display: grid;
+  justify-content: center;
+  text-align: center;
+  vertical-align: middle;
+  background-color: #3c415c;
+}
+
+h1 {
+  color: rgb(238, 218, 218);
+}
