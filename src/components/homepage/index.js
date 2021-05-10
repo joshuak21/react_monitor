@@ -109,25 +109,17 @@ class Homepage extends Component {
     let x = this.state.data[0].Distance;
     let messageTitle, messageBody, criticalLevel;
     // console.log(this.state.data[0].Distance);
-    if (x < 25) {
+    if (x < 7) {
       // if (!!this.state.isNotifSent) {
       this.fetchPushToken();
-      if (x < 10) {
+      if (x < 7 && x > 3) {
         // Critical Stage 3
-        messageTitle = "Water Level Alert Stage 3";
-        messageBody =
-          "Nearby citizen be advised to be cautious, water level have reach " +
-          x +
-          " cm.";
-        criticalLevel = 3;
-      } else if (x >= 10 && x < 15) {
-        // Critical Stage 2
         messageTitle = "Water Level Alert Stage 2";
         messageBody =
           "Nearby citizen be advised to be cautious, water level have reach " +
           x +
           " cm.";
-        criticalLevel = 2;
+        criticalLevel = 3;
       } else {
         // x >= 15 && x < 25
         // Critical Stage 1
