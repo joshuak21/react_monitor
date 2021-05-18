@@ -8,7 +8,7 @@ class Homepage extends Component {
   intv1;
 
   startingCount = 0;
-  placeholder = [];
+  token = [];
   notification = [];
   message = {
     to: "",
@@ -24,9 +24,9 @@ class Homepage extends Component {
       data: [],
       pushToken: [],
       isLoading: true,
-      count: 0,
       isNotifSent: false,
       dangerLevel: 0,
+      timestamp: "",
     };
   }
 
@@ -50,7 +50,6 @@ class Homepage extends Component {
 
   fetchData = async () => {
     if (!!this.state.isLoading) {
-      // console.log("YEP");
       return fetch("http://localhost:4000/api/check/")
         .then((res) => res.json())
         .then((resJSON) => {
@@ -58,13 +57,13 @@ class Homepage extends Component {
             data: resJSON,
             isLoading: false,
           });
-          // this.checkDistance();
+          this.checkDistance();
         });
     }
   };
 
   fetchPushToken = async () => {
-    return fetch("http://192.168.0.20:4000/api/token")
+    return fetch("http://192.168.0.12:4000/api/token")
       .then((res) => res.json())
       .then((resJSON) => {
         this.setState({
@@ -72,7 +71,7 @@ class Homepage extends Component {
         });
         // console.log(this.state.pushToken);
         this.state.pushToken.map(this.arrangePushToken);
-        this.message.to = this.placeholder;
+        this.message.to = this.token;
         console.log(this.message);
       })
       .catch((e) => console.log(e));
@@ -80,7 +79,6 @@ class Homepage extends Component {
 
   startCount = () => {
     this.setState({
-      count: this.state.count + 1,
       isLoading: true,
     });
     this.fetchData();
@@ -88,7 +86,6 @@ class Homepage extends Component {
 
   startTimeout = () => {
     this.startCount();
-    // this.fetchData();
     setTimeout(this.startTimeout, 5000);
   };
 
@@ -98,7 +95,6 @@ class Homepage extends Component {
       method: "POST",
       headers: {
         Accept: "application/json",
-        // "Accept-encoding": "gzip, deflate",
         "Content-Type": "application/json",
       },
       body: JSON.stringify(message),
@@ -108,33 +104,28 @@ class Homepage extends Component {
   checkDistance = () => {
     let x = this.state.data[0].Distance;
     let messageTitle, messageBody, criticalLevel;
-    // console.log(this.state.data[0].Distance);
-    if (x < 25) {
-      // if (!!this.state.isNotifSent) {
-      this.fetchPushToken();
-      if (x < 10) {
-        // Critical Stage 3
-        messageTitle = "Water Level Alert Stage 3";
+    if (x <= 30) {
+      if (x > 20) {
+        // Siaga 3 (21 - 30)
+        messageTitle = "Siaga 3";
+        messageBody = "Be advised, water level have reached " + x + " cm.";
+        criticalLevel = 1;
+      } else if (x <= 20 && x > 10) {
+        // Siaga 2 (11 - 19)
+        messageTitle = "Siaga 2";
         messageBody =
-          "Nearby citizen be advised to be cautious, water level have reach " +
-          x +
-          " cm.";
-        criticalLevel = 3;
-      } else if (x >= 10 && x < 15) {
-        // Critical Stage 2
-        messageTitle = "Water Level Alert Stage 2";
-        messageBody =
-          "Nearby citizen be advised to be cautious, water level have reach " +
-          x +
+          "Nearby citizen be advised to be aware, water level have reach " +
+          (12 - x) +
           " cm.";
         criticalLevel = 2;
       } else {
-        // x >= 15 && x < 25
-        // Critical Stage 1
-        messageTitle = "Water Level Alert Stage 1";
+        // x <= 10 | Siaga 1 | (0 - 10)
+        messageTitle = "Siaga 1";
         messageBody =
-          "Potential Flood occuring, water level have reach " + x + " cm.";
-        criticalLevel = 1;
+          "Warning! Water level have reached " +
+          x +
+          " cm. Nearby citizen please be aware of a potential floods!";
+        criticalLevel = 3;
       }
 
       if (criticalLevel > this.state.dangerLevel) {
@@ -144,43 +135,39 @@ class Homepage extends Component {
         });
 
         if (!this.state.isNotifSent) {
+          this.fetchPushToken();
           this.setState({
             isNotifSent: true,
+            timestamp: new Date(),
           });
           this.message.title = messageTitle;
           this.message.body = messageBody;
-          this.sendNotification(this.message);
-          console.log("MESSAGE SENT ", this.state.dangerLevel);
-          console.log(this.message);
+          // this.sendNotification(this.message);
+          // console.log("MESSAGE SENT ", this.state.dangerLevel);
+          // console.log(this.message);
         }
       }
-
-      console.log(this.state.isNotifSent);
-      // }
     } else {
       this.setState({
         isNotifSent: false,
         dangerLevel: 0,
       });
-      console.log(this.state.isNotifSent);
     }
   };
 
   arrangePushToken = ({ Token }, i) => {
-    this.placeholder[i] = Token;
+    this.token[i] = Token;
   };
 
   componentDidMount() {
-    console.log("COMPONENT IS MOUNT!!!");
-    // this.startInterval();
+    // console.log("COMPONENT IS MOUNT!!!");
     this.fetchData();
 
     this.startTimeout();
   }
 
   componentWillUnmount() {
-    console.log("COMPONENT UNMOUNT!!!");
-    // clearTimeout(this.startTimeout);
+    // console.log("COMPONENT UNMOUNT!!!");
     this.stopInterval();
   }
 
@@ -189,21 +176,20 @@ class Homepage extends Component {
       <div className="container">
         <h1>SENSOR MONITOR</h1>
 
-        {/* {!this.state.isLoading ? (
+        {!!this.state.isNotifSent && (
           <div>
-          <span>Status : YEP</span>
+            <p>Push Notification Sent</p>
+            <p>Critical Status: {this.state.dangerLevel}</p>
+            <p>Sent at: {this.state.timestamp.toString()}</p>
           </div>
-        ) : undefined} */}
-
-        {this.state.isLoading === false && (
-          <TableComponent data={this.state.data} />
         )}
 
-        <p>{this.state.count}</p>
-        {/* <button onClick={this.stopInterval}>Stop Interval</button>
-        <button onClick={this.sendNotification}>Send Push Notification</button>
-        <button onClick={this.fetchPushToken}>Fetch Token</button>
-        <button onClick={this.checkDistance}>Check state data</button> */}
+        {this.state.isLoading === false && (
+          <TableComponent
+            data={this.state.data}
+            status={this.state.dangerLevel}
+          />
+        )}
       </div>
     );
   }

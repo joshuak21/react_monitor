@@ -11,20 +11,17 @@ class TableComponent extends Component {
   tableRenderer = ({ ID, Distance, Flow, Timestamp }, i) => {
     return (
       <div key={i} className="data">
-        {/* <span className="text">{ID}</span> */}
-        {/* <span className="text">{Sensor}</span> */}
-        {/* <span className="text">{Lokasi}</span> */}
-        <span className="text">Current Water Level</span>
+        <span className="text">Water Level</span>
         <span className="text">{Distance} cm</span>
-        <span className="text">Current Water Flow Rate</span>
+        <span className="text">Status</span>
+        <span className="text">{this.props.status}</span>
+        <span className="text">Water Flow Rate</span>
         <span className="text">{Flow}</span>
-        {/* <span className="text">{Timestamp}</span> */}
       </div>
     );
   };
 
   render() {
-    // console.log(this.props);
     return (
       <div className="content">
         <h4>Sensor Reading</h4>
